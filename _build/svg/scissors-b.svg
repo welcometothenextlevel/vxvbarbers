@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80" data-pivot="64.5 40">
+  <defs>
+    <linearGradient id="scb-steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9e7e2"/>
+      <stop offset="1" stop-color="#bdb8ae"/>
+    </linearGradient>
+  </defs>
+  <g id="sc-a" style="transform-box:view-box;transform-origin:64.5px 40px">
+    <path fill="#0d0d0d" fill-rule="evenodd" d="M14.4 52.5 A13.6 10.2 0 1 0 41.6 52.5 A13.6 10.2 0 1 0 14.4 52.5Z M19 52.5 A9 5.9 0 1 0 37 52.5 A9 5.9 0 1 0 19 52.5Z"/>
+    <path fill="#0d0d0d" d="M25.64 62.55 C20.68 61.79 14 59.9 8.9 56.5 C7.6 55.6 7.9 54 9.3 54.15 C11.7 54.5 14.5 56.6 18.7 57.9Z"/>
+    <path fill="#0d0d0d" d="M64.5 42.95 C56.33 42.95 51.86 51.94 43.77 54.45 C42.15 54.96 40.75 56.45 39.53 57.91 L40.7 48.84 C41.24 49.91 41.55 49.79 42.62 49.54 C51.45 47.46 55.95 37.05 64.5 37.05Z"/>
+    <path fill="url(#scb-steel)" stroke="#0d0d0d" stroke-width="2.5" stroke-linejoin="round" d="M150.5 40 L73.1 40 A8.6 8.6 0 1 1 68 32.14 C69.6 32.75 72.5 33 76.5 33 C107.5 33 135.02 34.75 150.5 40Z"/>
+    <path fill="none" stroke="#a39d90" stroke-width=".7" stroke-linecap="round" d="M76.5 37.4 C103.2 37.4 129 37.9 144 38.95"/>
+  </g>
+  <g id="sc-b" style="transform-box:view-box;transform-origin:64.5px 40px">
+    <path fill="#0d0d0d" fill-rule="evenodd" d="M14.4 27.5 A13.6 10.2 0 1 0 41.6 27.5 A13.6 10.2 0 1 0 14.4 27.5Z M19 27.5 A9 5.9 0 1 0 37 27.5 A9 5.9 0 1 0 19 27.5Z"/>
+    <path fill="#0d0d0d" d="M64.5 37.05 C56.33 37.05 51.86 28.06 43.77 25.55 C42.15 25.04 40.75 23.55 39.53 22.09 L40.7 31.16 C41.24 30.09 41.55 30.21 42.62 30.46 C51.45 32.54 55.95 42.95 64.5 42.95Z"/>
+    <path fill="url(#scb-steel)" stroke="#0d0d0d" stroke-width="2.5" stroke-linejoin="round" d="M150.5 40 L73.1 40 A8.6 8.6 0 1 0 68 47.86 C69.6 47.25 72.5 47 76.5 47 C107.5 47 135.02 45.25 150.5 40Z"/>
+    <path fill="none" stroke="#a39d90" stroke-width=".7" stroke-linecap="round" d="M76.5 42.6 C103.2 42.6 129 42.1 144 41.05"/>
+  </g>
+  <g id="sc-pivot">
+    <circle cx="64.5" cy="40" r="3.7" fill="#0d0d0d"/>
+    <circle cx="64.5" cy="40" r="2.2" fill="#b88a3e"/>
+    <path d="M63.15 41.35 L65.85 38.65" stroke="#0d0d0d" stroke-width=".65" stroke-linecap="round"/>
+  </g>
+</svg>

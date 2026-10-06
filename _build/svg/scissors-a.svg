@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80" data-pivot="66 40">
+  <defs>
+    <linearGradient id="scA-steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f2ee"/>
+      <stop offset="0.4" stop-color="#e9e7e2"/>
+      <stop offset="0.6" stop-color="#cfcac0"/>
+      <stop offset="1" stop-color="#bdb8ae"/>
+    </linearGradient>
+  </defs>
+
+  <!-- half A: finger ring (lower, long straight handle, finger-rest tang); blade opens upward under rotate(-theta) -->
+  <g id="sc-a" style="transform-box:view-box;transform-origin:66px 40px">
+    <path fill="#0d0d0d" d="M29.39 42.64C40 41.49 51 40.3 60.55 38.02L66 45.8C55 45.8 41 45.3 30.56 48.67Z"/>
+    <path fill="#0d0d0d" d="M16.4 55.26C12.4 57.56 6.2 56.2 2.5 51.9A1.4 1.4 0 0 1 4.45 50.55C6.5 52.3 9.3 52.7 11.25 51.1L12.97 53.21Z"/>
+    <path fill="#0d0d0d" fill-rule="evenodd" d="M9.61 49.61A11.6 9.7 -11 1 1 32.39 45.19A11.6 9.7 -11 1 1 9.61 49.61ZM12.31 49.09A8.5 6.7 -11 1 0 29 45.84A8.5 6.7 -11 1 0 12.31 49.09Z"/>
+    <path fill="url(#scA-steel)" stroke="#0d0d0d" stroke-width="2.5" stroke-linejoin="round" d="M66 34.2C104 33.9 138 34.9 154 40L71.32 42.3A5.8 5.8 0 1 1 66 34.2Z"/>
+    <path fill="none" stroke="#0d0d0d" stroke-opacity="0.22" stroke-width="0.6" stroke-linecap="round" d="M78.94 39.99L122.94 38.76"/>
+  </g>
+
+  <!-- half B: thumb ring (upper, short offset handle); blade opens downward under rotate(+theta) -->
+  <g id="sc-b" style="transform-box:view-box;transform-origin:66px 40px">
+    <path fill="#0d0d0d" d="M41.76 27.93C48 31.83 58 34.2 66 34.2L60.98 42.9C54 40.6 46.5 36.2 39.69 33.03Z"/>
+    <path fill="#0d0d0d" fill-rule="evenodd" d="M24.42 23.89A9.9 8.8 22 1 1 42.78 31.31A9.9 8.8 22 1 1 24.42 23.89ZM26.83 24.87A7 5.9 22 1 0 39.81 30.11A7 5.9 22 1 0 26.83 24.87Z"/>
+    <path fill="url(#scA-steel)" stroke="#0d0d0d" stroke-width="2.5" stroke-linejoin="round" d="M66 45.8C104 46.1 138 45.1 154 40L71.32 37.7A5.8 5.8 0 1 0 66 45.8Z"/>
+    <path fill="none" stroke="#0d0d0d" stroke-opacity="0.22" stroke-width="0.6" stroke-linecap="round" d="M78.94 40.01L122.94 41.24"/>
+  </g>
+
+  <!-- pivot screw (stays unrotated on top) -->
+  <g id="sc-pivot">
+    <circle cx="66" cy="40" r="3.5" fill="#0d0d0d"/>
+    <circle cx="66" cy="40" r="2.15" fill="#b88a3e"/>
+    <path d="M64.65 41.35L67.35 38.65" stroke="#0d0d0d" stroke-width="0.7" stroke-linecap="round"/>
+  </g>
+</svg>
