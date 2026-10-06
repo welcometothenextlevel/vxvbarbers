@@ -8,7 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "docs")
 IMG = os.path.join(OUT, "assets", "img")
 BASE = "https://welcometothenextlevel.github.io/vxvbarbers/"
-V = "41"  # cache-buster for css/js
+V = "42"  # cache-buster for css/js
 
 WA_NUM = "41767578636"
 WA = "https://wa.me/" + WA_NUM

@@ -251,6 +251,16 @@
     $(".vm-prev", vm).addEventListener("click", function () { vi = (vi - 1 + list.length) % list.length; show(); });
     $(".vm-next", vm).addEventListener("click", function () { vi = (vi + 1) % list.length; show(); });
     vm.addEventListener("click", function (e) { if (e.target === vm || e.target.classList.contains("vm-stage")) closeV(); });
+    /* Tab cycles close → video → prev → next: once focus enters the browser's own video controls the page stops getting keys, Escape included */
+    var stops = [$(".vm-x", vm), vEl, $(".vm-prev", vm), $(".vm-next", vm)];
+    vm.addEventListener("keydown", function (e) {
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      var i = stops.indexOf(d.activeElement);
+      stops[i < 0 ? 0 : (i + (e.shiftKey ? -1 : 1) + stops.length) % stops.length].focus();
+    });
+    /* a mouse click on those controls parks focus inside them too: hand it back to the video as soon as the pointer moves on (controls send the page no events of their own) */
+    vm.addEventListener("pointermove", function () { if (vm.classList.contains("on") && d.activeElement === vEl) vEl.focus({ preventScroll: true }); });
     d.addEventListener("keydown", function (e) {
       if (!vm.classList.contains("on")) return;
       if (e.key === "Escape") closeV();
