@@ -41,20 +41,20 @@
     var y = window.scrollY || html.scrollTop;
     var max = Math.max(1, html.scrollHeight - window.innerHeight);
     var p = Math.min(1, Math.max(0, y / max));
-    if (clip && shave) {
-      var W = shave.clientWidth, cw = clip.offsetWidth;
-      var x = p * (W - cw);
+    if (clip && hair) {
+      var L = hair.offsetLeft, W = hair.offsetWidth, cw = clip.offsetWidth;
+      var x = L + p * (W - cw);
       clip.style.transform = "translate3d(" + x.toFixed(1) + "px,0,0)";
-      var cut = x + cw * edgeFrac;
-      if (hair) hair.style.clipPath = "inset(0 0 0 " + cut.toFixed(1) + "px)";
-      if (stub) stub.style.clipPath = "inset(0 " + Math.max(0, W - cut).toFixed(1) + "px 0 0)";
-      return { x: x, cw: cw, cut: cut };
+      var cut = Math.max(0, Math.min(W, x + cw * edgeFrac - L));
+      hair.style.clipPath = "inset(0 0 0 " + cut.toFixed(1) + "px)";
+      if (stub) stub.style.clipPath = "inset(0 " + (W - cut).toFixed(1) + "px 0 0)";
+      return { x: x, cw: cw, cut: cut + L };
     }
     return null;
   };
   var spawnCrumb = function (geo) {
     if (!shave || !geo) return;
-    var r = shave.getBoundingClientRect();
+    var r = clip.parentNode.getBoundingClientRect();
     for (var i = 0; i < 2; i++) {
       var c = d.createElement("i");
       c.className = "crumb-hair";
@@ -111,10 +111,10 @@
     var walk = function (node) {
       Array.prototype.slice.call(node.childNodes).forEach(function (n) {
         if (n.nodeType === 3) {
-          var parts = n.textContent.split(/(\s+)/), frag = d.createDocumentFragment();
+          var parts = n.textContent.split(/([ \t\n\r\f]+)/), frag = d.createDocumentFragment();
           parts.forEach(function (t) {
             if (!t) return;
-            if (/^\s+$/.test(t)) { frag.appendChild(d.createTextNode(t)); return; }
+            if (/^[ \t\n\r\f]+$/.test(t)) { frag.appendChild(d.createTextNode(t)); return; }
             var w = d.createElement("span"); w.className = "w";
             var i = d.createElement("span"); i.textContent = t; w.appendChild(i); frag.appendChild(w);
           });
@@ -251,15 +251,16 @@
   var pf = $(".pfloat");
   if (pf && fine) {
     var tx = 0, ty = 0, cx = 0, cy = 0, run = false;
+    var px = function (x) { return x > window.innerWidth * .55 ? x - 190 : x + 160; };
     var loop = function () { cx += (tx - cx) * .15; cy += (ty - cy) * .15; pf.style.left = cx + "px"; pf.style.top = cy + "px"; if (run) requestAnimationFrame(loop); };
     $$(".price[data-img]").forEach(function (row) {
       row.addEventListener("mouseenter", function (e) {
-        cx = tx = e.clientX + 160; cy = ty = e.clientY;
+        cx = tx = px(e.clientX); cy = ty = e.clientY;
         var k = row.getAttribute("data-img");
         $$("img", pf).forEach(function (im) { im.classList.toggle("on", im.getAttribute("data-k") === k); });
         pf.classList.add("on"); if (!run) { run = true; loop(); }
       });
-      row.addEventListener("mousemove", function (e) { tx = e.clientX + 160; ty = e.clientY; });
+      row.addEventListener("mousemove", function (e) { tx = px(e.clientX); ty = e.clientY; });
       row.addEventListener("mouseleave", function () { pf.classList.remove("on"); run = false; });
     });
   }
@@ -275,12 +276,13 @@
   var now = zNow();
   var toM = function (s) { var a = s.split(":"); return +a[0] * 60 + +a[1]; };
   var names = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  var fh = function (s) { var a = s.split(":"); return (+a[0]) + "h" + (a[1] === "00" ? "" : a[1]); };
   $$("[data-hours]").forEach(function (el) {
     var h = JSON.parse(el.getAttribute("data-hours")), t = h[now.day];
     var open = !!(t && now.min >= toM(t[0]) && now.min < toM(t[1])), txt;
-    if (open) txt = "Ouvert · jusqu’à " + t[1];
-    else if (t && now.min < toM(t[0])) txt = "Fermé · ouvre à " + t[0];
-    else { var k = 1, nx; while (k < 8 && !(nx = h[(now.day + k) % 7])) k++; txt = "Fermé · ouvre " + (k === 1 ? "demain" : names[(now.day + k) % 7]) + " à " + nx[0]; }
+    if (open) txt = "Ouvert · jusqu’à " + fh(t[1]);
+    else if (t && now.min < toM(t[0])) txt = "Fermé · ouvre à " + fh(t[0]);
+    else { var k = 1, nx; while (k < 8 && !(nx = h[(now.day + k) % 7])) k++; txt = "Fermé · ouvre " + (k === 1 ? "demain" : names[(now.day + k) % 7]) + " à " + fh(nx[0]); }
     $$("[data-status]", el).forEach(function (s) { s.textContent = txt; s.classList.toggle("on", open); });
     var row = $('tr[data-day="' + now.day + '"]', el); if (row) row.classList.add("today");
   });

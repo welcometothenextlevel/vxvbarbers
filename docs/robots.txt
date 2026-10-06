@@ -1,3 +1,2 @@
 User-agent: *
-Allow: /
-Sitemap: https://welcometothenextlevel.github.io/vxvbarbers/sitemap.xml
+Disallow: /
