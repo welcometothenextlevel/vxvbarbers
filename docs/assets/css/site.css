@@ -603,8 +603,9 @@ body.menu-open{overflow:hidden}
 }
 @media (min-width:981px) and (max-width:1240px){.masonry{grid-template-columns:repeat(3,1fr)}}
 
-/* hold the intro elements until site.js has set GSAP's start states (no paint → blank → replay flash); failsafe if JS never runs */
-.pre-intro .hero h1,.pre-intro .phead h1,.pre-intro .hero [data-in],.pre-intro .phead [data-in],.pre-intro .wall .wcol{visibility:hidden;animation:vxvShow 0s 2.5s forwards}
+/* hold everything GSAP animates on load until site.js has set its start states (no shown → hidden → shown flash); failsafe if JS never runs */
+.pre-intro .hero h1,.pre-intro .phead h1,.pre-intro .hero [data-in],.pre-intro .phead [data-in],.pre-intro .wall .wcol,.pre-intro [data-rv],.pre-intro [data-split],.pre-intro .ph[data-reveal],.pre-intro .ftr-word span{visibility:hidden;animation:vxvShow 0s 2.5s forwards}
+@media (min-width:981px){.pre-intro .trip .panel{visibility:hidden;animation:vxvShow 0s 2.5s forwards}}
 @keyframes vxvShow{to{visibility:visible}}
 
 /* hero salon list on small laptops / iPad landscape */

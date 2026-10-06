@@ -138,8 +138,13 @@
     return $$(".w>span", el);
   };
 
+  /* a script that arrives after the CSS failsafe (2.5 s) has already shown the page must not hide what is on screen again */
+  var late = performance.now() > 2300;
+  var onScreen = function (el) { var r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight; };
+  var fresh = function (el) { return !(late && onScreen(el)); };
+
   /* ---------- hero intro ---------- */
-  if (motion) {
+  if (motion && !late) {
     var hero = $(".hero, .phead");
     if (hero) {
       var h1 = $("h1", hero), words = h1 ? splitWords(h1) : [];
@@ -151,20 +156,19 @@
     }
   }
 
-  html.classList.remove("pre-intro");
-
   /* ---------- scroll motion ---------- */
   if (motion) {
-    G.set("[data-rv]", { y: 34, autoAlpha: 0 });
-    ST.batch("[data-rv]", {
+    var rvs = $$("[data-rv]").filter(fresh);
+    G.set(rvs, { y: 34, autoAlpha: 0 });
+    if (rvs.length) ST.batch(rvs, {
       start: "top 92%", once: true,
       onEnter: function (els) { G.to(els, { y: 0, autoAlpha: 1, duration: 1, stagger: .07, ease: "power3.out", overwrite: true }); }
     });
-    $$("[data-split]").forEach(function (h) {
+    $$("[data-split]").filter(fresh).forEach(function (h) {
       var ws = splitWords(h);
       G.from(ws, { yPercent: 110, duration: 1, stagger: .04, ease: "power4.out", scrollTrigger: { trigger: h, start: "top 90%", once: true } });
     });
-    $$(".ph[data-reveal]").forEach(function (ph) {
+    $$(".ph[data-reveal]").filter(fresh).forEach(function (ph) {
       var veil = d.createElement("i");
       veil.style.cssText = "position:absolute;inset:0;z-index:3;background:#ebe8e1;transform-origin:50% 0;pointer-events:none";
       ph.appendChild(veil);
@@ -177,7 +181,7 @@
       var amt = parseFloat(el.getAttribute("data-par")) || 8;
       G.fromTo(el, { yPercent: -amt, scale: 1.16 }, { yPercent: amt, scale: 1.16, ease: "none", scrollTrigger: { trigger: el.parentNode, start: "top bottom", end: "bottom top", scrub: true } });
     });
-    $$("[data-count]").forEach(function (el) {
+    $$("[data-count]").filter(fresh).forEach(function (el) {
       var raw = el.getAttribute("data-count"), to = parseFloat(raw), dec = (raw.split(".")[1] || "").length,
           suf = el.getAttribute("data-suffix") || "", o = { v: 0 };
       G.to(o, { v: to, duration: 2, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 94%", once: true },
@@ -186,14 +190,16 @@
         onComplete: function () { el.style.width = ""; el.style.whiteSpace = ""; } });
     });
     var fw = $$(".ftr-word span");
-    if (fw.length) G.from(fw, { yPercent: 105, duration: 1.1, stagger: .05, ease: "power4.out", scrollTrigger: { trigger: ".ftr-word", start: "top 96%", once: true } });
+    if (fw.length && fresh(fw[0])) G.from(fw, { yPercent: 105, duration: 1.1, stagger: .05, ease: "power4.out", scrollTrigger: { trigger: ".ftr-word", start: "top 96%", once: true } });
     var trip = $(".trip");
-    if (trip && window.innerWidth > 980) G.from($$(".panel", trip), { y: 60, autoAlpha: 0, duration: 1.2, stagger: .12, ease: "power3.out", scrollTrigger: { trigger: trip, start: "top 85%", once: true } });
+    if (trip && window.innerWidth > 980 && fresh(trip)) G.from($$(".panel", trip), { y: 60, autoAlpha: 0, duration: 1.2, stagger: .12, ease: "power3.out", scrollTrigger: { trigger: trip, start: "top 85%", once: true } });
     window.addEventListener("load", function () { ST.refresh(); });
     setTimeout(function () {
       $$("[data-rv]").forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top < window.innerHeight && r.bottom > 0 && getComputedStyle(el).opacity === "0") G.to(el, { autoAlpha: 1, y: 0, duration: .6 }); });
     }, 3000);
   }
+
+  html.classList.remove("pre-intro");
 
   /* ---------- videos: lazy-load and play only on screen ---------- */
   var vids = $$("video[data-auto]");
