@@ -8,12 +8,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "docs")
 IMG = os.path.join(OUT, "assets", "img")
 BASE = "https://welcometothenextlevel.github.io/vxvbarbers/"
-V = "30"  # cache-buster for css/js
+V = "40"  # cache-buster for css/js
 
 WA_NUM = "41767578636"
 WA = "https://wa.me/" + WA_NUM
 def wa(text):
     return WA + "?text=" + quote(text)
+WA_HELLO = WA + "?text=" + quote("Bonjour vXv, ")
 
 TIKTOK = "https://www.tiktok.com/@vxvbarbers"
 IG = "https://www.instagram.com/vxvbarbers/"
@@ -43,6 +44,7 @@ SALONS = [
          de="de Vevey", ig=IG_VEVEY, alts=["Boucles et dégradé", "Contours à la tondeuse"]),
 ]
 TOTAL_REVIEWS = sum(s["count"] for s in SALONS)
+RATING_ALL = ("%.1f" % (sum(float(s["rating"].replace(",", ".")) * s["count"] for s in SALONS) / TOTAL_REVIEWS)).replace(".", ",")
 DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
 
 def gmaps(s):
@@ -102,7 +104,7 @@ GALLERY = [  # (image, caption, tags)
     ("coupe-coeur", "Motif cœur", "coupes"), ("mur-vegetal", "Crissier — le mur végétal", "salons"),
     ("coupe-texture", "Texture & taper", "coupes"), ("coupe-skin", "Skin fade", "coupes"),
     ("crissier-salle", "Crissier — la salle", "salons"), ("coupe-twists", "Twists", "coupes"),
-    ("coupe-raie", "Raie rasée", "coupes"), ("portrait-nb", "Le résultat", "coupes"),
+    ("coupe-raie", "Raie rasée", "coupes"), ("vevey-tondeuse", "Vevey — contours", "salons coupes"), ("portrait-nb", "Le résultat", "coupes"),
     ("blecherette", "Blécherette — la salle", "salons"), ("coupe-barbe", "Barbe & contours", "coupes"),
     ("coupe-blond", "Blond & motif", "coupes"), ("coupe-volume", "Volume & dégradé", "coupes"),
     ("etagere-or", "Crissier — les produits", "salons"), ("blecherette-salle", "Blécherette — marbre & verdure", "salons"),
@@ -111,7 +113,7 @@ GALLERY = [  # (image, caption, tags)
     ("lounge", "Crissier — l’attente", "salons"), ("coupe-motif", "Motif rasé", "coupes"),
     ("coupe-chignon", "Chignon & barbe", "coupes"), ("comptoir", "Crissier — le comptoir", "salons"),
     ("vevey-fauteuil", "Vevey — les fauteuils", "salons"), ("coupe-degrade", "Dégradé mi-haut", "coupes"), ("coupe-afro", "Afro & taper", "coupes"),
-    ("miroir", "Le reflet", "coupes"), ("coupe-frange", "Frange & dégradé", "coupes"), ("neon-close", "Néons vXv", "salons"),
+    ("blecherette-entree", "Blécherette — l’entrée", "salons"), ("coupe-frange", "Frange & dégradé", "coupes"), ("neon-close", "Néons vXv", "salons"),
 ]
 HSCROLL = [("coupe-coeur", "Motif cœur"), ("coupe-texture", "Texture & taper"), ("coupe-skin", "Skin fade"),
            ("coupe-twists", "Twists"), ("coupe-raie", "Raie rasée"), ("coupe-barbe", "Barbe & contours"),
@@ -122,7 +124,7 @@ HSCROLL = [("coupe-coeur", "Motif cœur"), ("coupe-texture", "Texture & taper"),
 # all nine videos from the client's Instagram: (slug, title, meta, duration)
 VIDEOS = [
     ("crissier", "Crissier, l’ouverture", "Crissier", "0:21"),
-    ("blecherette", "Blécherette, la nouvelle adresse", "Blécherette", "0:10"),
+    ("blecherette", "Blécherette", "La nouvelle adresse", "0:10"),
     ("texture", "Mèches & texture", "Coupe", "0:21"),
     ("twists", "Twists", "Coupe", "0:24"),
     ("concours", "Le grand concours", "Les trois salons", "1:34"),
@@ -164,8 +166,9 @@ def dims(name):
 
 def pic(name, alt, lazy=True):
     w, h = dims(name)
+    wp = name + "-800" if os.path.exists(os.path.join(IMG, name + "-800.webp")) else name
     return ('<picture><source type="image/webp" srcset="assets/img/%s.webp"><img src="assets/img/%s.jpg" alt="%s" width="%d" height="%d"%s decoding="async"></picture>'
-            % (name, name, esc(alt), w, h, ' loading="lazy"' if lazy else ""))
+            % (wp, name, esc(alt), w, h, ' loading="lazy"' if lazy else ""))
 
 def H(txt, tag="h2", cls="h h-2", split=True, attrs=""):
     """'|' = line break, a part starting with '~' is greyed (hero only)."""
@@ -186,7 +189,7 @@ def socials(wa_too=True):
     out = ('<a class="soc ig" href="%s" target="_blank" rel="noopener" aria-label="Instagram @vxvbarbers">%s</a>'
            '<a class="soc tt" href="%s" target="_blank" rel="noopener" aria-label="TikTok @vxvbarbers">%s</a>') % (IG, I["ig"], TIKTOK, I["tt"])
     if wa_too:
-        out += '<a class="soc wa" href="%s" target="_blank" rel="noopener" aria-label="WhatsApp">%s</a>' % (WA, I["wa"])
+        out += '<a class="soc wa" href="%s" target="_blank" rel="noopener" aria-label="WhatsApp">%s</a>' % (WA_HELLO, I["wa"])
     return '<div class="socials">%s</div>' % out
 
 def stars(r="5,0"):
@@ -195,18 +198,22 @@ def stars(r="5,0"):
 
 PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>'
 
-def vcard(v, cls="wcard", extra="", hidden=False, full=False, style=""):
+NO_LOOP = {"concours"}  # its source has burned-in subtitles in almost every scene: poster only, full version plays in the modal
+
+def vcard(v, cls="wcard", extra="", hidden=False, full=False, style="", lazy_poster=False):
     """Video card: muted loop preview (or the full file for big tiles), click opens the full version with sound."""
     slug, title, meta, dur = v
     src = ("assets/video/full/%s.mp4" if full else "assets/video/loop/%s.mp4") % slug
-    return ('<button type="button" class="%s"%s%s data-video="assets/video/full/%s.mp4" data-title="%s" data-meta="%s" data-poster="assets/img/v-%s.jpg" aria-label="Lire la vidéo : %s">'
-            '<video data-auto muted loop playsinline preload="none" poster="assets/img/v-%s.jpg" data-src="%s"></video>'
+    vsrc = "" if (slug in NO_LOOP and not full) else ' data-src="%s"' % src
+    post = ('data-psrc' if lazy_poster else 'poster') + '="assets/img/v-%s.webp"' % slug
+    return ('<button type="button" class="%s"%s%s data-video="assets/video/full/%s.mp4" data-title="%s" data-meta="%s" data-poster="assets/img/v-%s.webp" aria-label="Lire la vidéo : %s">'
+            '<video data-auto muted loop playsinline preload="none" %s%s></video>'
             '%s<span class="lbl"><span class="t">%s</span><span class="play">%s</span></span></button>'
             % (cls, ' style="%s"' % style if style else "", ' aria-hidden="true" tabindex="-1"' if hidden else "", slug, esc(title), esc(meta), slug, esc(title),
-               slug, src, extra, esc(title), PLAY))
+               post, vsrc, extra, esc(title), PLAY))
 
 def pcard(name, cap, hidden=False):
-    return '<a class="wcard ph" href="galerie"%s tabindex="-1">%s<span class="lbl"><span class="t">%s</span></span></a>' % (' aria-hidden="true"' if hidden else "", pic(name, "" if hidden else cap, lazy=False), esc(cap))
+    return '<a class="wcard ph" href="galerie"%s tabindex="-1">%s<span class="lbl"><span class="t">%s</span></span></a>' % (' aria-hidden="true"' if hidden else "", pic(name, "" if hidden else cap, lazy=True), esc(cap))
 
 # ------------------------------------------------------------------ typography post-processing (text nodes only)
 _NBSP_WORDS = ["rendez-vous", "Lausanne-Blécherette", "Plaines-du-Loup", "Général-Guisan", "vXv Barber’s", "mi-haut"]
@@ -217,6 +224,7 @@ def typo(htmltext):
             return m.group(0)
         t = re.sub(r" ([?!:;»])", "\u202f\\1", t)
         t = re.sub(r"(«) ", "\\1\u202f", t)
+        t = re.sub(r"(?<![\w’'-])(à|du|de|des|la|le|les|au|aux|un|une|et|en|·) ", "\\1\u00a0", t)
         for w in _NBSP_WORDS:
             t = re.sub(re.escape(w) + r"([^\s<]*)", lambda m: "\x00" + m.group(0) + "\x01", t)
         return ">" + t + "<"
@@ -259,9 +267,10 @@ def head(slug, title, desc, extra=""):
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/clash-display-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/switzer-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/fonts.css?v=%(v)s">
 <link rel="stylesheet" href="assets/css/site.css?v=%(v)s">
-<script>document.documentElement.classList.add("js");(function(p){if(p.slice(-5)===".html"){history.replaceState(null,"",p.slice(-11)==="/index.html"?p.slice(0,-10):p.slice(0,-5)+location.search+location.hash)}})(location.pathname)</script>
+<script>document.documentElement.classList.add("js");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pre-intro");(function(p){if(p.slice(-5)===".html"){history.replaceState(null,"",p.slice(-11)==="/index.html"?p.slice(0,-10):p.slice(0,-5)+location.search+location.hash)}})(location.pathname)</script>
 %(extra)s</head>
 """ % dict(title=esc(title), desc=esc(desc), robots=robots, canon=canon, base=BASE, v=V, extra=extra)
 
@@ -299,7 +308,7 @@ def footer():
 <div class="ftr-word" aria-hidden="true">%(word)s</div>
 <div class="ftr-bot"><span>© <span data-year>2026</span> vXv Barber’s</span><span>Sans rendez-vous · du lundi au samedi</span></div>
 </div></footer>
-""" % dict(mark=MARK, soc=socials(True), sal=sal, wa=WA, tels=tels, pages=pages, word=word)
+""" % dict(mark=MARK, soc=socials(True), sal=sal, wa=WA_HELLO, tels=tels, pages=pages, word=word)
 
 def wa_widget():
     q = [("Quelle attente à Crissier ?", "Bonjour vXv, quelle est l’attente en ce moment au salon de Crissier ?"),
@@ -352,9 +361,10 @@ SNAME = {s["key"]: s for s in SALONS}
 def rcard(i, r, hidden=False):
     name, key, text = r
     s = SNAME[key]
-    return ('<article class="rcard" data-tags="%s"%s><div class="rcard-h"><span class="av" style="background:%s">%s</span><div><b>%s</b><span>vXv Barber’s %s</span></div>%s</div>'
-            '%s<p>%s</p><div class="rsrc"><span>Avis publié sur Google</span><a href="%s" target="_blank" rel="noopener"%s>Voir l’avis</a></div></article>'
-            % (key, ' aria-hidden="true"' if hidden else "", AV_COLORS[i % len(AV_COLORS)], esc(name[0].upper()), esc(name), s["name"], I["g"].replace("<svg ", '<svg class="g" '),
+    sz = " xshort" if len(text) < 100 else (" short" if len(text) < 140 else "")
+    return ('<article class="rcard%s" data-tags="%s"%s><div class="rcard-h"><span class="av" style="background:%s">%s</span><div><b>%s</b><span>vXv Barber’s %s</span></div>%s</div>'
+            '%s<p>%s</p><div class="rsrc"><a href="%s" target="_blank" rel="noopener"%s>Voir l’avis sur Google</a></div></article>'
+            % (sz, key, ' aria-hidden="true"' if hidden else "", AV_COLORS[i % len(AV_COLORS)], esc(name[0].upper()), esc(name), s["name"], I["g"].replace("<svg ", '<svg class="g" '),
                stars(), esc(text), greviews(s), ' tabindex="-1"' if hidden else ""))
 
 def rev_rows(n_rows=2):
@@ -370,43 +380,46 @@ def rev_rows(n_rows=2):
 def g_summary():
     sc = "".join('<div class="meta"><b style="color:var(--ink)">%s</b> %s<br>%s · %d avis</div>' % (s["rating"], stars(s["rating"]), s["name"], s["count"]) for s in SALONS)
     return ('<div class="g-summary" data-rv><span class="g-brand">%s<span>Avis Google</span></span>'
-            '<div class="score"><b>%d</b><span class="meta">avis vérifiés<br>sur trois salons</span></div>%s'
+            '<div class="score"><b>%s</b><span class="meta">%s<br>%d avis · trois salons</span></div>%s'
             '<div class="g-acts"><a class="btn btn-line" href="avis">Tous les avis %s</a><a class="btn btn-ink" href="avis#avis-scores">Laisser un avis</a></div></div>'
-            % (I["g"].replace("<svg ", '<svg class="glogo" '), TOTAL_REVIEWS, sc, I["arr"]))
+            % (I["g"].replace("<svg ", '<svg class="glogo" '), RATING_ALL, stars(RATING_ALL), TOTAL_REVIEWS, sc, I["arr"]))
 
 def prices_html():
     rows = "".join('<li class="price" data-img="%s" data-rv><span class="n">0%d</span><div><h3>%s</h3><p>%s</p></div><span class="v"><small>CHF</small>%s.–</span></li>'
                    % (img, i + 1, n, desc, v) for i, (n, v, desc, img) in enumerate(PRICES))
-    pf = '<div class="pfloat" aria-hidden="true">' + "".join('<img src="assets/img/%s.jpg" data-k="%s" alt="" loading="lazy">' % (p[3], p[3]) for p in PRICES) + "</div>"
+    pf = '<div class="pfloat" aria-hidden="true">' + "".join('<img data-src="assets/img/%s.webp" data-k="%s" alt="">' % (p[3], p[3]) for p in PRICES) + "</div>"
     return '<ul class="prices">%s</ul>%s' % (rows, pf)
 
 def follow():
-    cards = [(IG, "ig", I["ig"], "Instagram", "@vxvbarbers · 3K\u00a0abonnés"),
-             (TIKTOK, "tt", I["tt"], "TikTok", "@vxvbarbers · 215,6K\u00a0j’aime"),
-             (IG_VEVEY, "ig", I["ig"], "Instagram Vevey", "@vxvvevey · 527\u00a0abonnés"),
-             (WA, "wa", I["wa"], "WhatsApp", "+41\u00a076\u00a0757\u00a086\u00a036")]
+    cards = [(IG, "ig", I["ig"], "Instagram", "@vxvbarbers", "3K\u00a0abonnés"),
+             (TIKTOK, "tt", I["tt"], "TikTok", "@vxvbarbers", "215,6K\u00a0j’aime"),
+             (IG_VEVEY, "ig", I["ig"], "Instagram Vevey", "@vxvvevey", "527\u00a0abonnés"),
+             (WA_HELLO, "wa", I["wa"], "WhatsApp", "+41\u00a076\u00a0757\u00a086\u00a036", "Écrire un message")]
     return '<div class="follow">%s</div>' % "".join(
-        '<a class="fcard" href="%s" target="_blank" rel="noopener" data-rv><span class="ic %s">%s</span><span><b>%s</b><span>%s</span></span>%s</a>' % (u, c, ic, t, sub, I["arr2"]) for u, c, ic, t, sub in cards)
+        '<a class="fcard" href="%s" target="_blank" rel="noopener" data-rv><span class="ic %s">%s</span><span class="txt"><b>%s</b><span class="sub"><span>%s</span><span>%s</span></span></span>%s</a>' % (u, c, ic, t, h, sub, I["arr2"]) for u, c, ic, t, h, sub in cards)
 
-def bigcta(title, lead, img="lounge", extra_btn="", cls=""):
+def bigcta(title, lead, img="lounge", extra_btn="", cls="", default_btns=True):
+    btns = ('<a class="btn btn-wa" href="%s" target="_blank" rel="noopener">%s Écrire sur WhatsApp</a><a class="btn btn-line" href="salons">Nos salons %s</a>' % (WA_HELLO, I["wa"], I["arr"])) if default_btns else ""
     return """<section class="sec tight %s"><div class="wrap"><div class="bigcta">
 <div class="bg"><img data-par="6" src="assets/img/%s.jpg" alt="" loading="lazy"></div>
-<span class="kicker"><span class="dot"></span>Sans rendez-vous · Lun – Sam</span>
+<span class="kicker"><span class="dot"></span><span>Sans rendez-vous · Lun – Sam</span></span>
 %s
 <p class="lead">%s</p>
-<div class="hero-cta">%s<a class="btn btn-wa" href="%s" target="_blank" rel="noopener">%s Écrire sur WhatsApp</a><a class="btn btn-line" href="salons">Nos salons %s</a></div>
-</div></div></section>""" % (cls, img, H(title, "h2", "h"), lead, extra_btn, wa("Bonjour vXv, "), I["wa"], I["arr"])
+<div class="hero-cta">%s%s</div>
+</div></div></section>""" % (cls, img, H(title, "h2", "h"), lead, extra_btn, btns)
 
-def phead(crumb, title, lead, side=""):
-    return """<section class="phead%s"><div class="wrap"><div class="phead-grid">
+def phead(crumb, title, lead, side="", extra_cls="", after_lead=""):
+    return """<section class="phead%s%s"><div class="wrap"><div class="phead-grid">
 <div><nav class="crumbs" aria-label="Fil d’Ariane" data-in><a href="./">Accueil</a><span>/</span><span>%s</span></nav>
 %s
-<p class="lead" data-in>%s</p></div>
+<p class="lead" data-in>%s</p>%s</div>
 %s
-</div></div></section>""" % (" has-side" if side else "", crumb, H(title, "h1", "h h-1", split=False), lead, ('<div class="phead-side" data-in>%s</div>' % side) if side else "")
+</div></div></section>""" % (" has-side" if side else "", extra_cls, crumb, H(title, "h1", "h h-1", split=False), lead, after_lead, ('<div class="phead-side" data-in>%s</div>' % side) if side else "")
 
 def kick(n, label):
-    return '<span class="kicker" data-rv><b>%s</b>%s</span>' % (n, label)
+    if not n or n == "—":
+        return '<span class="kicker" data-rv><span class="dot"></span><span>%s</span></span>' % label
+    return '<span class="kicker" data-rv><b>%s</b><span>%s</span></span>' % (n, label)
 
 def reels_section(n="03"):
     reels = "".join('<figure class="reel" data-rv>%s</figure>' % vcard(v, "wcard", '<span class="dur">%s</span>' % v[3]).replace(
@@ -421,14 +434,14 @@ def reels_section(n="03"):
 def index():
     V_ = {v[0]: v for v in VIDEOS}
     cols = [
-        [("v", "crissier"), ("p", "coupe-coeur", "Motif cœur"), ("v", "concours"), ("p", "coupe-skin", "Skin fade")],
+        [("v", "crissier"), ("p", "coupe-coeur", "Motif cœur"), ("p", "coupe-blond", "Blond & motif"), ("p", "coupe-skin", "Skin fade")],
         [("v", "miroir"), ("p", "mur-vegetal", "Crissier — le mur végétal"), ("v", "texture"), ("v", "blecherette")],
         [("v", "vevey"), ("p", "portrait-nb", "Le résultat"), ("v", "transfo"), ("v", "ciseaux"), ("v", "twists")],
     ]
     def colhtml(items, hidden=False):
         return "".join(vcard(V_[it[1]], hidden=hidden) if it[0] == "v" else pcard(it[1], it[2], hidden) for it in items)
     wall = "".join('<div class="wcol"><div class="wtrack" style="--dur:%ds">%s%s</div></div>' % (d_, colhtml(c), colhtml(c, True)) for c, d_ in zip(cols, [64, 72, 80]))
-    morder = ["crissier", "miroir", "vevey", "transfo", "texture", "twists", "blecherette", "concours", "ciseaux"]
+    morder = ["crissier", "miroir", "vevey", "transfo", "texture", "twists", "blecherette", "ciseaux"]
     mobile_items = "".join(vcard(V_[k]) for k in morder)
     mobile_items_h = "".join(vcard(V_[k], hidden=True) for k in morder)
     live = "".join('<a href="salons#%s" data-hours=\'%s\'><b>%s<small>%s</small></b><span class="status" data-status>Horaires</span>%s</a>'
@@ -436,12 +449,12 @@ def index():
     photos = [g for g in GALLERY if "coupes" in g[2]]
     half = len(photos) // 2
     def mrow(items, rev, dur):
-        cards = "".join('<figure class="mcard">%s<figcaption>%s</figcaption></figure>' % (pic(n, c, lazy=False), esc(c)) for n, c, _ in items)
-        hid = "".join('<figure class="mcard" aria-hidden="true">%s<figcaption>%s</figcaption></figure>' % (pic(n, "", lazy=False), esc(c)) for n, c, _ in items)
+        cards = "".join('<figure class="mcard">%s<figcaption>%s</figcaption></figure>' % (pic(n, c), esc(c)) for n, c, _ in items)
+        hid = "".join('<figure class="mcard" aria-hidden="true">%s<figcaption>%s</figcaption></figure>' % (pic(n, ""), esc(c)) for n, c, _ in items)
         return '<div class="mrow%s" style="--dur:%ds"><div class="mtrack">%s%s</div></div>' % (" rev" if rev else "", dur, cards, hid)
     panels = []
     for s in SALONS:
-        media = ('<video data-auto muted loop playsinline preload="none" poster="assets/img/v-crissier.jpg" data-src="assets/video/loop/crissier.mp4"></video>'
+        media = ('<video data-auto muted loop playsinline preload="none" poster="assets/img/v-crissier.webp" data-src="assets/video/loop/crissier.mp4"></video>'
                  if s["key"] == "crissier" else pic(s["img"], "Le salon vXv Barber’s " + s["de"]))
         panels.append("""<a class="panel" href="salons#%(key)s" data-hours='%(hours)s'>
 <div class="media">%(media)s</div>
@@ -451,7 +464,6 @@ def index():
     slist = "".join("""<div class="sitem" data-rv><div class="hrs"><b>%(name)s</b><br>%(hsum)s<br>Dimanche\u00a0· fermé</div>
 <div class="acts"><a class="chip" href="%(map)s" target="_blank" rel="noopener">%(pin)s Itinéraire</a><a class="chip" href="tel:%(tel)s">%(telico)s %(phone)s</a></div></div>"""
                     % dict(name=s["name"], hsum=hsum(s), map=gmaps(s), pin=I["pin"], tel=s["tel"], telico=I["tel"], phone=s["phone"].replace(" ", "\u00a0")) for s in SALONS)
-    rating_all = "%.1f" % ((sum(float(s["rating"].replace(",", ".")) * s["count"] for s in SALONS)) / TOTAL_REVIEWS)
 
     main = """
 <section class="hero"><div class="wrap hero-grid">
@@ -459,7 +471,7 @@ def index():
 <span class="kicker" data-in><span class="dot"></span>Barbershop · Crissier · Lausanne · Vevey</span>
 %(h1)s
 <p class="lead" data-in>Coupes, dégradés et barbe dans nos trois salons. Pas besoin de rendez-vous : vous passez quand vous voulez, on s’occupe du reste.</p>
-<div class="hero-cta" data-in><a class="btn btn-ink" href="salons">Trouver un salon %(arr)s</a><a class="btn btn-wa" href="%(wa)s" target="_blank" rel="noopener">%(waico)s WhatsApp</a></div>
+<div class="hero-cta" data-in><a class="btn btn-ink" href="salons">Trouver un salon %(arr)s</a><a class="btn btn-line" href="prestations">Voir les tarifs %(arr)s</a></div>
 <div class="gb" data-in><a class="gbadge" href="avis"><span class="g">%(g)s</span><span><b>%(rall)s</b> %(sall)s <span class="muted">· %(total)d avis Google</span></span></a></div>
 <div class="live" data-in>%(live)s</div>
 </div>
@@ -483,8 +495,8 @@ def index():
 <div class="stats">
 <div class="stat" data-rv><b data-count="%(total)d">%(total)d</b><span>avis Google sur nos trois salons</span></div>
 <div class="stat" data-rv><b data-count="5.0">5,0</b><span>note Google de la Blécherette</span></div>
-<div class="stat" data-rv><b><span data-count="10.7">10,7</span>K</b><span>abonnés sur TikTok</span></div>
-<div class="stat" data-rv><b><span data-count="215.6">215,6</span>K</b><span>j’aime sur TikTok</span></div>
+<div class="stat" data-rv><b data-count="10.7" data-suffix="K">10,7K</b><span>abonnés sur TikTok</span></div>
+<div class="stat" data-rv><b data-count="215.6" data-suffix="K">215,6K</b><span>j’aime sur TikTok</span></div>
 </div>
 </div></section>
 
@@ -531,7 +543,7 @@ def index():
 %(cta)s
 """ % dict(
         h1=H("L’art du dégradé,|~sans rendez-vous.", "h1", "h h-1 hero-h1", split=False), arr=I["arr"], wa=wa("Bonjour vXv, "), waico=I["wa"],
-        g=I["g"], total=TOTAL_REVIEWS, rall=rating_all.replace(".", ","), sall=stars(rating_all.replace(".", ",")), live=live, wall=wall, mi=mobile_items, mih=mobile_items_h,
+        g=I["g"], total=TOTAL_REVIEWS, rall=RATING_ALL, sall=stars(RATING_ALL), live=live, wall=wall, mi=mobile_items, mih=mobile_items_h,
         k1=kick("01", "La maison"), ih=H("Une coupe propre, à chaque passage."), ne=I["ne"],
         p1=pic("neon-close", "Les néons vXv sur le mur végétal du salon de Crissier"), p2=pic("blecherette-salle", "Marbre noir et plafond lumineux à la Blécherette"),
         k2=kick("02", "Le travail"), th=H("Le travail, sans filtre."), row1=mrow(photos[:half], False, 75), row2=mrow(photos[half:], True, 85),
@@ -566,7 +578,7 @@ def salons():
 <table class="hours" data-rv><caption class="sr">Horaires — %(name)s</caption>%(rows)s</table>
 <dl class="facts" data-rv><dt>Adresse</dt><dd>%(street)s, %(city)s</dd><dt>Téléphone</dt><dd><a href="tel:%(tel)s">%(phone)s</a></dd><dt>Google</dt><dd>%(rating)s %(stars)s · %(count)d avis</dd></dl>
 <div class="sd-acts" data-rv><a class="btn btn-ink" href="%(map)s" target="_blank" rel="noopener">%(pin)s Itinéraire</a><a class="btn btn-line" href="tel:%(tel)s">%(telico)s Appeler</a></div>
-<div class="sd-acts sd-acts-2" data-rv><button type="button" class="chip" data-video="assets/video/full/%(vs)s.mp4" data-title="%(vt)s" data-meta="%(vm)s" data-poster="assets/img/v-%(vs)s.jpg">%(play)s Voir la vidéo</button><a class="chip" href="%(rev)s" target="_blank" rel="noopener">%(g)s Avis Google</a><a class="chip" href="%(ig)s" target="_blank" rel="noopener">%(igico)s Instagram</a></div>
+<div class="sd-acts sd-acts-2" data-rv><button type="button" class="chip" data-video="assets/video/full/%(vs)s.mp4" data-title="%(vt)s" data-meta="%(vm)s" data-poster="assets/img/v-%(vs)s.webp">%(play)s Voir la vidéo</button><a class="chip" href="%(rev)s" target="_blank" rel="noopener">%(g)s Avis Google</a><a class="chip" href="%(ig)s" target="_blank" rel="noopener">%(igico)s Instagram</a></div>
 <div class="map" data-rv><iframe src="%(embed)s" title="Carte — vXv Barber’s %(name)s" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
 </div>
 </section>""" % dict(key=s["key"], hours=json.dumps(s["hours"]), m0=vcard(v, style="position:absolute;inset:0;aspect-ratio:auto;border-radius:0"),
@@ -587,8 +599,8 @@ def prestations():
              ("On finit", "Contours à la lame, dégradé fondu, coiffage. Vous repartez prêt.")]
     st = "".join('<div class="step" data-rv><b>0%d</b><h3>%s</h3><p>%s</p></div>' % (i + 1, t, p) for i, (t, p) in enumerate(steps))
     V_ = {v[0]: v for v in VIDEOS}
-    side = '<div class="ph phead-vid">%s</div>' % vcard(V_["twists"], style="position:absolute;inset:0;aspect-ratio:auto;border-radius:0")
-    main = phead("Prestations", "Quatre prestations,|~bien faites.", "Coupe, coupe enfant, barbe et soin point noir — des prix simples, sans rendez-vous.", side) + """
+    side = '<div class="ph phead-vid">%s</div>' % vcard(V_["ciseaux"], style="position:absolute;inset:0;aspect-ratio:auto;border-radius:0")
+    main = phead("Prestations", "Quatre prestations,|~bien faites.", "Coupe, coupe enfant, barbe et soin point noir — des prix simples, sans rendez-vous.", side, " has-vid") + """
 <section class="sec tight"><div class="wrap">%s
 <p class="note" data-rv>Tarifs affichés pour le salon de Crissier, à titre indicatif. Ils peuvent varier légèrement selon l’adresse.</p></div></section>
 <section class="sec stone"><div class="wrap">
@@ -597,7 +609,7 @@ def prestations():
 <div>%s%s<div class="steps" style="margin-top:28px">%s</div></div>
 </div></div></section>
 %s
-%s""" % (prices_html(), vcard(V_["ciseaux"], full=True, style="position:absolute;inset:0;aspect-ratio:auto;border-radius:0"),
+%s""" % (prices_html(), vcard(V_["miroir"], full=True, style="position:absolute;inset:0;aspect-ratio:auto;border-radius:0"),
          kick("—", "Comment ça se passe"), H("En trois temps.", "h2", "h h-2", attrs=' style="margin-top:14px"'), st, reels_section("—"),
          bigcta("Une question|sur un tarif ?", "Écrivez-nous, on vous répond sur WhatsApp."))
     return page("prestations", "Prestations & tarifs — vXv Barber’s",
@@ -606,13 +618,13 @@ def prestations():
 def galerie():
     items, vi = [], 0
     for i, (n, cap, tags) in enumerate(GALLERY):
-        items.append('<button type="button" class="gi" data-tags="%s" data-cap="%s" data-full="assets/img/%s.jpg" aria-label="Agrandir : %s" data-rv>%s<span class="cap" aria-hidden="true">%s</span></button>' % (tags, esc(cap), n, esc(cap), pic(n, ""), esc(cap)))
+        items.append('<button type="button" class="gi" data-tags="%s" data-cap="%s" data-full="assets/img/%s.webp" aria-label="Agrandir : %s" data-rv>%s<span class="cap" aria-hidden="true">%s</span></button>' % (tags, esc(cap), n, esc(cap), pic(n, ""), esc(cap)))
         if i % 3 == 2 and vi < len(VIDEOS):
-            items.append(vcard(VIDEOS[vi], "gi wcard").replace('class="gi wcard"', 'class="gi wcard" data-tags="videos" data-rv', 1))
+            items.append(vcard(VIDEOS[vi], "gi wcard", lazy_poster=True).replace('class="gi wcard"', 'class="gi wcard" data-tags="videos" data-rv', 1))
             vi += 1
     while vi < len(VIDEOS):
-        items.append(vcard(VIDEOS[vi], "gi wcard").replace('class="gi wcard"', 'class="gi wcard" data-tags="videos" data-rv', 1)); vi += 1
-    fan = '<div class="ph-fan">%s</div>' % "".join('<span class="ph">%s</span>' % pic(n, "", lazy=False) for n in ["coupe-coeur", "portrait-nb", "coupe-texture"])
+        items.append(vcard(VIDEOS[vi], "gi wcard", lazy_poster=True).replace('class="gi wcard"', 'class="gi wcard" data-tags="videos" data-rv', 1)); vi += 1
+    fan = '<div class="ph-fan">%s</div>' % "".join('<span class="ph">%s</span>' % pic(n, "", lazy=False) for n in ["coupe-blond", "portrait-nb", "coupe-waves"])
     main = phead("Galerie", "Le travail,|~tel quel.", "Des coupes réalisées dans nos salons — en photo et en vidéo, sans retouche.", fan) + """
 <section style="padding-bottom:clamp(80px,10vw,140px)">
 <div class="gbar"><div class="wrap"><div class="chips" data-filter=".gi"><button type="button" data-f="all" aria-pressed="true">Tout</button><button type="button" data-f="coupes" aria-pressed="false">Coupes</button><button type="button" data-f="videos" aria-pressed="false">Vidéos</button><button type="button" data-f="salons" aria-pressed="false">Salons</button></div></div></div>
@@ -632,7 +644,7 @@ def avis():
 <div class="acts"><a class="chip" href="%s" target="_blank" rel="noopener">Lire sur Google %s</a><a class="chip" href="%s" target="_blank" rel="noopener">%s Laisser un avis</a></div></div>"""
                      % (s["name"], I["g"], s["rating"], stars(s["rating"]), s["count"], greviews(s), I["ne"], gwrite(s), I["star"]) for s in SALONS)
     grid = "".join(rcard(i, r) for i, r in enumerate(REVIEWS))
-    side = '<div class="ph-trio">%s</div>' % "".join('<a class="ph" href="%s" target="_blank" rel="noopener"><span class="cap">%s · %s ★</span>%s</a>' % (greviews(s), s["name"], s["rating"], pic(s["img"], "Le salon " + s["de"], lazy=False)) for s in SALONS)
+    side = '<div class="ph-trio">%s</div>' % "".join('<a class="ph" href="%s" target="_blank" rel="noopener"><span class="cap"><span>%s</span><span class="r">%s <i aria-hidden="true">★</i> Google</span></span>%s</a>' % (greviews(s), s["name"], s["rating"], pic(s["img"], "Le salon " + s["de"], lazy=False)) for s in SALONS)
     main = phead("Avis", "%d avis.|~Mot pour mot." % TOTAL_REVIEWS, "Les avis Google de nos trois salons, tels qu’ils sont publiés — fautes comprises.", side) + """
 <section class="sec tight"><div class="wrap"><div class="gscores" id="avis-scores">%s</div></div>
 %s
@@ -644,8 +656,7 @@ def avis():
 </div></section>
 %s""" % (scores, rev_rows(2), kick("—", "Tous les avis"), H("Filtrer par salon."), grid,
          bigcta("Passé chez|nous ?", "Votre avis aide les autres à choisir leur barbier. Choisissez votre salon :", "mur-vegetal",
-                "".join('<a class="btn btn-line g-w" href="%s" target="_blank" rel="noopener">%s %s</a>' % (gwrite(s), I["g"], s["name"]) for s in SALONS), cls="after-stone").replace(
-                '<a class="btn btn-wa"', '<a class="btn btn-wa" style="display:none"', 1))
+                "".join('<a class="btn btn-line g-w" href="%s" target="_blank" rel="noopener">%s %s</a>' % (gwrite(s), I["g"], s["name"]) for s in SALONS), cls="after-stone", default_btns=False))
     return page("avis", "Avis Google — vXv Barber’s",
                 "%d avis Google sur les salons vXv Barber’s de Crissier (4,6), Lausanne-Blécherette (5,0) et Vevey (5,0)." % TOTAL_REVIEWS, main)
 
@@ -663,8 +674,9 @@ if __name__ == "__main__":
     with open(os.path.join(OUT, "robots.txt"), "w") as f:
         f.write("User-agent: *\nDisallow: /\n" if PITCH else "User-agent: *\nAllow: /\nSitemap: %ssitemap.xml\n" % BASE)
     open(os.path.join(OUT, ".nojekyll"), "w").close()
+    side404 = '<div class="ph-trio">%s</div>' % "".join('<a href="salons#%s" class="ph"><span class="cap">%s</span>%s</a>' % (s_["key"], s_["name"], pic(s_["img"], "Le salon " + s_["de"], lazy=False)) for s_ in SALONS)
+    main404 = phead("Page introuvable", "Coupe|~ratée.", "Cette page n’existe pas — nos fauteuils, si.", side404,
+                    after_lead='<div class="hero-cta" data-in style="margin-top:28px"><a class="btn btn-ink" href="./">Accueil %s</a><a class="btn btn-line" href="salons">Nos salons %s</a></div>' % (I["arr"], I["arr"]))
     with open(os.path.join(OUT, "404.html"), "w", encoding="utf-8") as f:
-        f.write(page("404", "Page introuvable — vXv Barber’s", "Cette page n’existe pas.",
-                     '<section class="phead" style="min-height:70svh"><div class="wrap">%s<p class="lead" data-in>Cette page n’existe pas — nos fauteuils, si.</p><a class="btn btn-ink" href="./">Accueil %s</a></div></section>'
-                     % (H("Coupe|~ratée.", "h1", "h h-1", split=False), I["arr"])).replace("<head>\n", '<head>\n<base href="/vxvbarbers/">\n', 1))
+        f.write(page("404", "Page introuvable — vXv Barber’s", "Cette page n’existe pas.", main404).replace("<head>\n", '<head>\n<base href="/vxvbarbers/">\n', 1))
     print("built", ", ".join(pages))
